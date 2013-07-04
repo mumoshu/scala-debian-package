@@ -1,0 +1,31 @@
+#!/usr/bin/make -f
+#-*- makefile -*-
+# Made with the aid of dh_make, by Craig Small
+# Sample debian/rules that uses debhelper. GNU copyright 1997 by Joey Hess.
+# Some lines taken from debmake, by Christoph Lameter.
+
+# Uncomment this to turn on verbose mode.
+export DH_VERBOSE=1
+
+VERSION=`cat debian/scalaversion`
+ID=scala
+TARBALL=$(ID)-$(VERSION).tgz
+
+DEB_PATH=debian/$(ID)
+INSTALL_PATH=/usr/share/$(ID)/$(VERSION)
+%:
+	dh  $@
+
+override_dh_auto_build: 
+	if [ ! -f ${TARBALL} ]; then curl -o ${TARBALL} http://www.scala-lang.org/downloads/distrib/files/scala-$(VERSION).tgz;fi
+	if [ ! -f ${TARBALL} ]; then cp ../${TARBALL} ./;fi
+	tar zxvf ${TARBALL}
+
+override_dh_auto_clean: 
+	if [ -f ${TARBALL} ]; then rm ${TARBALL}; fi
+	if [ -d ${ID} ]; then rm -rf ${ID}; fi
+	if [ -d ${DEB_PATH} ]; then rm -rf ${DEB_PATH}; fi
+
+override_dh_auto_install: 
+	install -d $(DEB_PATH)$(INSTALL_PATH)
+	cp -r ${ID}-${VERSION}/* $(DEB_PATH)$(INSTALL_PATH)
